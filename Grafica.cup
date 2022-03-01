@@ -1,0 +1,113 @@
+// seccion codigo
+paquete;
+
+import java_cup.runtime.*;
+
+parser code {:
+
+    public void report_error(String message, Object info) {
+        System.out.println("public void report_error");
+    }
+    
+    public void report_fatal_error(String message, Object info) {
+        System.out.println("public void report_fatal_error");
+    }
+
+    public void syntax_error(Symbol cur_token) {
+        System.out.println("El error es el simbolo:");
+    }
+
+    public void unrecovered_syntax_error(Symbol cur_token) {
+        if (cur_token.sym == sym.EOF) {
+            System.out.println("public void unrecoveredsyntax_error");
+        }
+    }
+:}
+
+
+
+
+// seccion de terminales
+
+terminal COMA, PUNTO_Y_COMA, DOS_PUNTOS, LLAVES_A, LLAVES_C, CORCHETES_A, CORCHETES_C, 
+MAS, MENOS, POR, DIVISION, PARENTESIS_A, PARENTESIS_C, DEF1, DEF2,
+EJE_X, EJE_Y, ETIQUETAS, VALORES, TIPO, CANTIDAD, PORCENTAJE, TOTAL, EXTRA,
+UNIR, TITULO, EJECUTAR, ENTERO, DECIMAL, ID, COMENTARIO, ERROR;
+
+// seccion de no termimales
+non terminal s, d, c, t, x, m, y, n, u, v, f;
+
+// gramatica tipo 2
+// INICIO
+
+start with s;
+
+    s ::= d LLAVES_A c LLAVES_C     {: RESULT:}
+
+// Def, def
+    d ::= DEF1                      {: RESULT:}
+       | DEF2                        {: RESULT:}
+
+//Definicion del contenido
+    c ::= t x y u                           {: RESULT:}
+	| t x u y                               {: RESULT:}
+	| t y x u                               {: RESULT:}
+	| t y u x                               {: RESULT:}
+	| t u x y                               {: RESULT:}
+	| t u y x                               {: RESULT:}
+	| x t y u                               {: RESULT:}
+	| x t u y                               {: RESULT:}
+	| x y t u                               {: RESULT:}
+	| x y u t                               {: RESULT:}
+	| x u t y                               {: RESULT:}
+	| x u y t                               {: RESULT:}
+	| y t x u                               {: RESULT:}
+	| y t u x                               {: RESULT:}
+	| y u x t                               {: RESULT:}
+	| y u t x                               {: RESULT:}
+	| y x t u                               {: RESULT:}
+	| y x u t                               {: RESULT:}
+	| u t x y                               {: RESULT:}
+	| u t y x                               {: RESULT:}
+	| u x t y                               {: RESULT:}
+	| u x y t                               {: RESULT:}
+	| u y x t                               {: RESULT:}
+	| u y t x                               {: RESULT:}
+
+// Titulo
+    t ::= TITULO DOS_PUNTOS ID PUNTO_Y_COMA {: RESULT:}
+
+//tipo
+    u ::= TIPO DOS_PUNTOS CANTIDAD PUNTO_Y_COMA {: RESULT:}
+
+//unir
+    v ::= UNIR DOS_PUNTOS CORCHETES_A f CORCHETES_C PUNTO_Y_COMA    {: RESULT:}
+
+//coordenada
+    f ::= LLAVES_A ENTERO LLAVES_C {: RESULT:}
+        | COMA f
+
+// Eje X
+    x ::= EJE_X DOS_PUNTOS CORCHETES_A m CORCHETES_C    {: RESULT:}
+
+// Varios valores etiqueta separados por coma
+    m ::= ID                           {: RESULT:}
+        |COMA m                           {: RESULT:}    
+
+// Eje y
+    y ::= EJE_Y DOS_PUNTOS CORCHETES_A n CORCHETES_C    {: RESULT:}
+
+// Varios valores en numericos separados por coma
+    n ::= e                         {: RESULT:}
+        | COMA  n            {: RESULT:}
+
+//Gramatica para operaciones aritmeticas
+    e ::= e:valor1 MAS e:valor2     {: RESULT = valor1 + valor2; :}
+        | e:valor1 MENOS e:valor2   {: RESULT = valor1 - valor2; :}
+        | e:valor1 POR e:valor2     {: RESULT = valor1 * valor2; :}
+        | e:valor1 DIVISION e:valor2{: RESULT = valor1 / valor2; :}
+        | PARENTESIS_A e:valor PARENTESIS_C {: RESULT = valor; :}
+        | ENTERO:valor              {: RESULT = valor}
+        | DECIMAL:valor             {: RESULT = valor:}
+        | error                     {: System.out.println("Error aritmetico");:}
+    
